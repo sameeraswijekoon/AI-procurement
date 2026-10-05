@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f7f8ff">
+  <title>SpecPilot — AI Tender Assistant</title><link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="ambient-scene" aria-hidden="true"><div class="ambient-grid"></div><div class="ambient-orb orb-cyan"></div><div class="ambient-orb orb-violet"></div><div class="ambient-orb orb-blue"></div><div class="neural-orbit orbit-one"><i></i><b></b></div><div class="neural-orbit orbit-two"><i></i><b></b></div></div>
+  <main class="shell">
+    <header class="topbar"><a class="brand" href="#"><span class="brand-mark">✳</span> specpilot <span class="brand-sep">/</span> AI procurement</a><span class="local-pill"><i></i> Running locally</span></header>
+    <section class="hero"><div class="eyebrow">AI-POWERED PROCUREMENT CHECK</div><h1>Check what you need.<br><span>Know what fits.</span></h1><p>Compare a tender PDF with a product PDF or public product webpage.</p></section>
+    <div class="workspace">
+      <section class="panel tender-panel">
+        <div class="panel-head"><div><div class="step">01 <span>TENDER</span></div><h2>Add the requirements</h2></div></div>
+        <label class="upload-box" for="tender-file"><span class="upload-icon">↑</span><span class="upload-copy"><strong>Choose tender PDF</strong><small>Scanned PDFs supported · up to 18 MB</small></span><span class="file-name" id="tender-name">Browse</span></label>
+        <input class="file-input" type="file" id="tender-file" accept="application/pdf,.pdf">
+        <div class="or-label"><span></span> OR PASTE TEXT <span></span></div>
+        <label class="sr-only" for="tender">Tender requirements</label><textarea id="tender" maxlength="12000" placeholder="Paste the tender requirements here…"></textarea>
+        <div class="text-count" id="char-count">0 / 12,000</div>
+      </section>
+      <section class="panel product-panel">
+        <div class="panel-head"><div><div class="step">02 <span>PRODUCT</span></div><h2>Show the item</h2></div></div>
+        <div class="choice-tabs" role="tablist"><button class="choice-tab active" id="tab-pdf" role="tab" aria-selected="true">Product PDF</button><button class="choice-tab" id="tab-link" role="tab" aria-selected="false">Item web link</button></div>
+        <div id="product-pdf-pane" class="product-pane"><label class="upload-box product-upload" for="product-file"><span class="upload-icon">↑</span><span class="upload-copy"><strong>Choose product PDF</strong><small>Specification sheet, brochure or scanned PDF</small></span><span class="file-name" id="product-name">Browse</span></label><input class="file-input" type="file" id="product-file" accept="application/pdf,.pdf"><div class="product-hint">Gemini reads text and scanned pages in the PDF.</div></div>
+        <div id="product-link-pane" class="product-pane" hidden><label class="sr-only" for="product-url">Product page URL</label><input class="url-input" id="product-url" type="url" placeholder="https://example.com/product/laptop" autocomplete="url"><div class="product-hint">Use a public page that does not require sign-in.</div></div>
+        <div class="privacy-note"><span>✦</span> PDFs go to Gemini, or OpenRouter if Gemini is unavailable. This app does not save them; OpenRouter scanned-PDF OCR may incur a per-page charge.</div>
+      </section>
+    </div>
+    <section class="panel run-panel">
+      <div class="panel-head"><div><div class="step">03 <span>RUN SETTINGS</span></div><h2>Choose how to compare</h2></div><span class="config-chip" id="provider-health">Checking providers…</span></div>
+      <div class="settings-label">AI PROVIDER</div>
+      <div class="provider-grid" role="radiogroup" aria-label="AI provider">
+        <label class="provider-option selected"><input type="radio" name="provider-mode" value="auto" checked><span class="provider-symbol">✳</span><span class="provider-info"><strong>Auto</strong><small>Gemini first, OpenRouter backup</small></span><span class="recommended">RECOMMENDED</span></label>
+        <label class="provider-option"><input type="radio" name="provider-mode" value="gemini"><span class="provider-symbol gemini-symbol">G</span><span class="provider-info"><strong>Gemini</strong><small>Use Gemini only</small></span></label>
+        <label class="provider-option"><input type="radio" name="provider-mode" value="openrouter"><span class="provider-symbol router-symbol">↗</span><span class="provider-info"><strong>OpenRouter</strong><small>Use GPT-4o only</small></span></label>
+      </div>
+      <div class="settings-label reasoning-label">SPEED &amp; REASONING</div>
+      <div class="preset-grid" role="radiogroup" aria-label="Reasoning depth">
+        <label class="preset-option"><input type="radio" name="reasoning-level" value="low"><span class="preset-top"><strong>Fast</strong><span>↯</span></span><small>Quick scan · lower reasoning effort</small></label>
+        <label class="preset-option selected"><input type="radio" name="reasoning-level" value="medium" checked><span class="preset-top"><strong>Balanced</strong><span>◈</span></span><small>Good balance of speed and detail</small></label>
+        <label class="preset-option"><input type="radio" name="reasoning-level" value="high"><span class="preset-top"><strong>Deep review</strong><span>✧</span></span><small>Thorough checks · may take longer</small></label>
+      </div>
+      <details class="advanced-settings">
+        <summary><span>Advanced options</span><span class="advanced-summary">Model, report and evidence</span></summary>
+        <div class="advanced-grid">
+          <label class="setting-field" id="gemini-model-field"><span>Preferred Gemini model</span><select id="gemini-model"><option value="gemini-3.8-flash">Gemini 3.8 Flash</option><option value="gemini-3.7-flash">Gemini 3.7 Flash</option><option value="gemini-3.6-flash">Gemini 3.6 Flash</option><option value="gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite · faster</option></select></label>
+          <label class="setting-field" id="openrouter-model-field" hidden><span>OpenRouter model</span><select id="openrouter-model"><option value="openai/gpt-4o">OpenAI GPT-4o</option></select></label>
+          <label class="setting-field"><span>Report rows</span><select id="report-scope"><option value="all">All specifications</option><option value="issues">Only mismatches and questions</option></select></label>
+          <label class="check-field"><input type="checkbox" id="include-evidence" checked><span><strong>Include evidence snippets</strong><small>Show the supporting product value or wording.</small></span></label>
+        </div>
+        <p class="provider-note" id="reasoning-note">Reasoning level maps to Gemini's low, medium, and high thinking settings. GPT-4o uses the chosen review depth in its instructions.</p>
+      </details>
+    </section>
+    <button class="analyze-button" id="analyze-button"><span>Compare against tender</span><span class="arrow">↗</span></button>
+    <section class="progress-panel" id="progress-panel" hidden aria-live="polite">
+      <div class="progress-copy"><span id="progress-status">Preparing your files…</span><span class="progress-number" id="progress-number">0%</span></div>
+      <div class="progress-track" role="progressbar" id="analysis-progress" aria-label="Estimated analysis progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-fill" id="progress-fill"></div><div class="progress-glint" id="progress-glint"></div></div>
+      <div class="progress-foot"><span id="progress-detail">Preparing documents for comparison</span><span id="elapsed-time">0:00</span></div>
+    </section>
+    <section class="result panel" id="result-panel" hidden><div class="result-head"><div><div class="step">04 <span>ASSESSMENT</span></div><h2>Here’s what I found</h2></div><div class="result-tools"><span class="provider-badge" id="provider-badge">Gemini</span><button class="speak-button" id="speak-button" title="Read assessment aloud" aria-label="Read assessment aloud">◖))</button></div></div><div class="result-body" id="result-body"></div><div class="result-foot">AI assessment based on the provided tender and product information. Verify critical specifications with the supplier.</div></section>
+    <footer><span>Made for careful decisions.</span><span>Files are processed for this comparison.</span></footer>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div><script src="/app.js" type="module"></script>
+</body>
+</html>
