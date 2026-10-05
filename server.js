@@ -10,6 +10,18 @@ const app = express();
 const here = path.dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.PORT || 4173);
 app.use(express.json({ limit: '52mb' }));
+const pagesOrigin = 'https://sameeraswijekoon.github.io';
+app.use((req, res, next) => {
+  if (req.headers.origin === pagesOrigin) {
+    res.setHeader('Access-Control-Allow-Origin', pagesOrigin);
+    res.setHeader('Vary', 'Origin');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Private-Network', 'true');
+    if (req.method === 'OPTIONS') return res.sendStatus(204);
+  }
+  next();
+});
 app.get('/', (_req, res) => res.sendFile(path.join(here, 'index.html')));
 app.use('/public', express.static(path.join(here, 'public')));
 

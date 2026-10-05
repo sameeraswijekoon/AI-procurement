@@ -11,11 +11,12 @@ let toastTimer;
 let progressTimer;
 let progressStartedAt = 0;
 let configuredProviders = { gemini: false, openrouter: false };
-const isGitHubPages = location.hostname.endsWith('.github.io');
+const isGitHubPages = location.origin === 'https://sameeraswijekoon.github.io' && location.pathname.startsWith('/AI-procurement');
+const apiBaseUrl = isGitHubPages ? 'http://127.0.0.1:4173' : '';
 
 if (isGitHubPages) {
-  document.querySelector('.local-pill').innerHTML = '<i></i> GitHub Pages · interface only';
-  document.querySelector('#provider-health').textContent = 'AI server required';
+  document.querySelector('.local-pill').innerHTML = '<i></i> Personal local AI server';
+  document.querySelector('#provider-health').textContent = 'Connecting to local server…';
 }
 
 document.querySelectorAll('input[name="provider-mode"]').forEach(input => input.addEventListener('change', syncRunSettings));
@@ -23,13 +24,16 @@ document.querySelectorAll('input[name="reasoning-level"]').forEach(input => inpu
   document.querySelectorAll('.preset-option').forEach(option => option.classList.toggle('selected', option.querySelector('input').checked));
 }));
 syncRunSettings();
-if (!isGitHubPages) fetch('/api/config').then(response => response.json()).then(config => {
+fetch(`${apiBaseUrl}/api/config`).then(response => {
+  if (!response.ok) throw new Error('Local API server is unavailable.');
+  return response.json();
+}).then(config => {
   configuredProviders = config.providers || configuredProviders;
   const label = configuredProviders.gemini && configuredProviders.openrouter ? 'Gemini ready · OpenRouter backup ready' : configuredProviders.gemini ? 'Gemini ready · No backup configured' : configuredProviders.openrouter ? 'OpenRouter ready · Backup only' : 'No AI provider configured';
   document.querySelector('#provider-health').innerHTML = `<span class="health-dot"></span>${label}`;
   syncRunSettings();
 }).catch(() => {
-  document.querySelector('#provider-health').textContent = 'Provider status unavailable';
+  document.querySelector('#provider-health').textContent = isGitHubPages ? 'Start local server · npm start' : 'Provider status unavailable';
 });
 
 function syncRunSettings() {
@@ -149,7 +153,7 @@ function startWaitingProgress(hasUrl) {
 function sendAnalysisRequest(body, hasUrl) {
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest();
-    request.open('POST', '/api/analyze');
+    request.open('POST', `${apiBaseUrl}/api/analyze`);
     request.setRequestHeader('Content-Type', 'application/json');
     request.timeout = 180000;
     request.upload.addEventListener('progress', event => {
@@ -179,7 +183,6 @@ function sendAnalysisRequest(body, hasUrl) {
 }
 
 analyzeButton.addEventListener('click', async () => {
-  if (isGitHubPages) return notify('GitHub Pages hosts the interface only. Run the app locally with your own API key to analyze documents. See the setup steps in the repository README.');
   const tenderFile = tenderFileInput.files?.[0];
   const productFile = productFileInput.files?.[0];
   const productUrl = document.querySelector('#product-url').value.trim();
