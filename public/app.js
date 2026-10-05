@@ -24,14 +24,14 @@ if (isGitHubPages) {
   document.querySelector('#gemini-api-key').value = publicKeys.gemini;
   document.querySelector('#openrouter-api-key').value = publicKeys.openrouter;
   configuredProviders = { gemini: Boolean(publicKeys.gemini), openrouter: Boolean(publicKeys.openrouter) };
-  const label = configuredProviders.gemini && configuredProviders.openrouter ? 'Gemini ready · OpenRouter backup ready' : configuredProviders.gemini ? 'Gemini ready · No backup configured' : configuredProviders.openrouter ? 'OpenRouter ready · Backup only' : 'No AI provider configured';
+  const label = configuredProviders.gemini && configuredProviders.openrouter ? 'Gemini key saved · OpenRouter key saved' : configuredProviders.gemini ? 'Gemini key saved · No backup configured' : configuredProviders.openrouter ? 'OpenRouter key saved · Backup only' : 'Add an API key in Advanced options';
   document.querySelector('#provider-health').innerHTML = `<span class="health-dot"></span>${label}`;
 }
 if (!isGitHubPages) document.querySelector('.api-key-settings').hidden = true;
 
 function updatePublicProviderStatus() {
   configuredProviders = { gemini: Boolean(publicKeys.gemini), openrouter: Boolean(publicKeys.openrouter) };
-  const label = configuredProviders.gemini && configuredProviders.openrouter ? 'Gemini ready · OpenRouter backup ready' : configuredProviders.gemini ? 'Gemini ready · No backup configured' : configuredProviders.openrouter ? 'OpenRouter ready · Backup only' : 'Add an API key in Advanced options';
+  const label = configuredProviders.gemini && configuredProviders.openrouter ? 'Gemini key saved · OpenRouter key saved' : configuredProviders.gemini ? 'Gemini key saved · No backup configured' : configuredProviders.openrouter ? 'OpenRouter key saved · Backup only' : 'Add an API key in Advanced options';
   document.querySelector('#provider-health').innerHTML = `<span class="health-dot"></span>${label}`;
 }
 if (isGitHubPages) updatePublicProviderStatus();
