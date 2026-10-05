@@ -12,14 +12,46 @@ let progressTimer;
 let progressStartedAt = 0;
 let configuredProviders = { gemini: false, openrouter: false };
 const isGitHubPages = location.origin === 'https://sameeraswijekoon.github.io' && location.pathname.startsWith('/AI-procurement');
-const publicKeys = window.SPECPILOT_PUBLIC_KEYS || {};
+const storedKeys = (() => {
+  try { return { gemini: localStorage.getItem('specpilot-gemini-key') || '', openrouter: localStorage.getItem('specpilot-openrouter-key') || '' }; }
+  catch { return { gemini: '', openrouter: '' }; }
+})();
+let publicKeys = { ...(window.SPECPILOT_PUBLIC_KEYS || {}), ...storedKeys };
 
 if (isGitHubPages) {
-  document.querySelector('.local-pill').innerHTML = '<i></i> Public test · direct AI APIs';
+  document.querySelector('.local-pill').innerHTML = '<i></i> Personal test · direct AI APIs';
+  document.querySelector('.api-key-settings').hidden = false;
+  document.querySelector('#gemini-api-key').value = publicKeys.gemini;
+  document.querySelector('#openrouter-api-key').value = publicKeys.openrouter;
   configuredProviders = { gemini: Boolean(publicKeys.gemini), openrouter: Boolean(publicKeys.openrouter) };
   const label = configuredProviders.gemini && configuredProviders.openrouter ? 'Gemini ready · OpenRouter backup ready' : configuredProviders.gemini ? 'Gemini ready · No backup configured' : configuredProviders.openrouter ? 'OpenRouter ready · Backup only' : 'No AI provider configured';
   document.querySelector('#provider-health').innerHTML = `<span class="health-dot"></span>${label}`;
 }
+if (!isGitHubPages) document.querySelector('.api-key-settings').hidden = true;
+
+function updatePublicProviderStatus() {
+  configuredProviders = { gemini: Boolean(publicKeys.gemini), openrouter: Boolean(publicKeys.openrouter) };
+  const label = configuredProviders.gemini && configuredProviders.openrouter ? 'Gemini ready · OpenRouter backup ready' : configuredProviders.gemini ? 'Gemini ready · No backup configured' : configuredProviders.openrouter ? 'OpenRouter ready · Backup only' : 'Add an API key in Advanced options';
+  document.querySelector('#provider-health').innerHTML = `<span class="health-dot"></span>${label}`;
+}
+if (isGitHubPages) updatePublicProviderStatus();
+
+for (const [id, provider, storageKey] of [
+  ['gemini-api-key', 'gemini', 'specpilot-gemini-key'],
+  ['openrouter-api-key', 'openrouter', 'specpilot-openrouter-key']
+]) {
+  const input = document.getElementById(id);
+  input.addEventListener('input', () => {
+    publicKeys = { ...publicKeys, [provider]: input.value.trim() };
+    try { input.value.trim() ? localStorage.setItem(storageKey, input.value.trim()) : localStorage.removeItem(storageKey); } catch {}
+    if (isGitHubPages) updatePublicProviderStatus();
+  });
+}
+document.querySelectorAll('[data-toggle-key]').forEach(button => button.addEventListener('click', () => {
+  const input = document.getElementById(button.dataset.toggleKey);
+  input.type = input.type === 'password' ? 'text' : 'password';
+  button.textContent = input.type === 'password' ? 'Show' : 'Hide';
+}));
 
 document.querySelectorAll('input[name="provider-mode"]').forEach(input => input.addEventListener('change', syncRunSettings));
 document.querySelectorAll('input[name="reasoning-level"]').forEach(input => input.addEventListener('change', () => {
@@ -237,7 +269,10 @@ async function runGeminiDirect(body, prompt, hasUrl) {
         signal: AbortSignal.timeout(180000)
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data?.error?.message || `Gemini returned HTTP ${response.status}.`);
+      if (!response.ok) {
+        if ([401, 403].includes(response.status)) throw new Error('Gemini rejected this API key. Replace it in Advanced options → Personal API keys.');
+        throw new Error(data?.error?.message || `Gemini returned HTTP ${response.status}.`);
+      }
       const text = data?.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('\n').trim();
       if (!text) throw new Error('Gemini returned no assessment text.');
       return { text, model };
@@ -263,7 +298,10 @@ async function runOpenRouterDirect(body, prompt, hasUrl) {
     }), signal: AbortSignal.timeout(180000)
   });
   const data = await response.json();
-  if (!response.ok) throw new Error(data?.error?.message || `OpenRouter returned HTTP ${response.status}.`);
+  if (!response.ok) {
+    if ([401, 403].includes(response.status)) throw new Error('OpenRouter rejected this API key. Replace it in Advanced options → Personal API keys.');
+    throw new Error(data?.error?.message || `OpenRouter returned HTTP ${response.status}.`);
+  }
   const answer = data?.choices?.[0]?.message?.content;
   const text = Array.isArray(answer) ? answer.filter(item => item.type === 'text').map(item => item.text).join('\n') : answer;
   if (typeof text !== 'string' || !text.trim()) throw new Error('OpenRouter returned no assessment text.');

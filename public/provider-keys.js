@@ -1,2 +1,2 @@
-/* Public test keys, intentionally exposed for the GitHub Pages test app. */
-window.SPECPILOT_PUBLIC_KEYS = Object.freeze({"gemini":"AQ.Ab8RN6Lui36H933noxzLciY17Vd0ROwqy7wPWUVGK-Ta8-B2MQ","openrouter":"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"} );
+/* Test credentials are entered and stored in this browser, never in the public source. */
+window.SPECPILOT_PUBLIC_KEYS = Object.freeze({});

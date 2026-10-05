@@ -50,6 +50,14 @@
         </div>
         <p class="provider-note" id="reasoning-note">Reasoning level maps to Gemini's low, medium, and high thinking settings. GPT-4o uses the chosen review depth in its instructions.</p>
       </details>
+      <details class="advanced-settings api-key-settings">
+        <summary><span>Personal API keys</span><span class="advanced-summary">saved in this browser only</span></summary>
+        <div class="advanced-grid">
+          <label class="setting-field"><span>Gemini API key</span><span class="api-key-control"><input id="gemini-api-key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste a valid Google AI Studio key"><button type="button" data-toggle-key="gemini-api-key">Show</button></span></label>
+          <label class="setting-field"><span>OpenRouter API key</span><span class="api-key-control"><input id="openrouter-api-key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste a valid OpenRouter key"><button type="button" data-toggle-key="openrouter-api-key">Show</button></span></label>
+        </div>
+        <p class="provider-note">Keys are stored in this browser and sent directly to the selected provider. They are not saved to this app or GitHub. Use test keys and clear them when finished.</p>
+      </details>
     </section>
     <button class="analyze-button" id="analyze-button"><span>Compare against tender</span><span class="arrow">↗</span></button>
     <section class="progress-panel" id="progress-panel" hidden aria-live="polite">
