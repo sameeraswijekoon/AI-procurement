@@ -10,7 +10,8 @@ const app = express();
 const here = path.dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.PORT || 4173);
 app.use(express.json({ limit: '52mb' }));
-app.use(express.static(path.join(here, 'public')));
+app.get('/', (_req, res) => res.sendFile(path.join(here, 'index.html')));
+app.use('/public', express.static(path.join(here, 'public')));
 
 app.get('/api/config', (_req, res) => {
   res.json({ providers: { gemini: Boolean(process.env.GEMINI_API_KEY), openrouter: Boolean(process.env.OPENROUTER_API_KEY) } });

@@ -13,7 +13,7 @@ A local web MVP that compares a tender PDF or pasted requirements with a product
 
 ## GitHub Pages
 
-The repository deploys the interface from `public/` to GitHub Pages using the included Actions workflow. GitHub Pages is a static host and cannot run this app's Express API or safely store Gemini/OpenRouter keys. The Pages site is therefore a public preview of the interface; comparisons require running the app locally with your own `.env` keys using the steps above. Never add API keys to frontend files or commit `.env`.
+The root `index.html` is the GitHub Pages home page. The included Actions workflow packages it with the frontend assets from `public/`. GitHub Pages is a static host and cannot run this app's Express API or safely store Gemini/OpenRouter keys. The Pages site is therefore a public preview of the interface; comparisons require running the app locally with your own `.env` keys using the steps above. Never add API keys to frontend files or commit `.env`.
 
 The app binds only to `127.0.0.1`. Tender and product PDFs are sent to the selected AI provider for analysis and are not saved by this app. Gemini is tried first. If Gemini fails, the app uses OpenRouter's `openai/gpt-4o` model; the result identifies which provider responded. For product URLs, the local server first extracts readable content from the public page, then uses Gemini URL Context or OpenRouter Web Fetch if needed. Pages that require a login may not work. Voice output uses the browser's speech synthesis.
 
