@@ -11,13 +11,19 @@ let toastTimer;
 let progressTimer;
 let progressStartedAt = 0;
 let configuredProviders = { gemini: false, openrouter: false };
+const isGitHubPages = location.hostname.endsWith('.github.io');
+
+if (isGitHubPages) {
+  document.querySelector('.local-pill').innerHTML = '<i></i> GitHub Pages · interface only';
+  document.querySelector('#provider-health').textContent = 'AI server required';
+}
 
 document.querySelectorAll('input[name="provider-mode"]').forEach(input => input.addEventListener('change', syncRunSettings));
 document.querySelectorAll('input[name="reasoning-level"]').forEach(input => input.addEventListener('change', () => {
   document.querySelectorAll('.preset-option').forEach(option => option.classList.toggle('selected', option.querySelector('input').checked));
 }));
 syncRunSettings();
-fetch('/api/config').then(response => response.json()).then(config => {
+if (!isGitHubPages) fetch('/api/config').then(response => response.json()).then(config => {
   configuredProviders = config.providers || configuredProviders;
   const label = configuredProviders.gemini && configuredProviders.openrouter ? 'Gemini ready · OpenRouter backup ready' : configuredProviders.gemini ? 'Gemini ready · No backup configured' : configuredProviders.openrouter ? 'OpenRouter ready · Backup only' : 'No AI provider configured';
   document.querySelector('#provider-health').innerHTML = `<span class="health-dot"></span>${label}`;
@@ -173,6 +179,7 @@ function sendAnalysisRequest(body, hasUrl) {
 }
 
 analyzeButton.addEventListener('click', async () => {
+  if (isGitHubPages) return notify('GitHub Pages hosts the interface only. Run the app locally with your own API key to analyze documents. See the setup steps in the repository README.');
   const tenderFile = tenderFileInput.files?.[0];
   const productFile = productFileInput.files?.[0];
   const productUrl = document.querySelector('#product-url').value.trim();
